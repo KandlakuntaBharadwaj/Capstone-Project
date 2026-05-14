@@ -21,37 +21,37 @@ function Register() {
     handleSubmit,
     formState: { errors },
   } = useForm();
+
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState(null);
   const [preview, setPriview] = useState(null);
   const navigate = useNavigate();
 
-  //When user registration submitted
   const onUserRegister = async (userObj) => {
-    console.log(userObj);
-    let {profileImageUrl}=userObj
-    // file + userObj -->FormData
-    //create ForMData object
+    let { profileImageUrl } = userObj;
+
     const formData = new FormData();
-    //add all user properties and file to this formdata object
     formData.append("role", userObj.role);
     formData.append("firstName", userObj.firstName);
     formData.append("lastName", userObj.lastName);
     formData.append("email", userObj.email);
     formData.append("password", userObj.password);
-    //Append if image is exists
+
     if (profileImageUrl?.[0]) {
       formData.append("profileImageUrl", profileImageUrl[0]);
     }
-   console.log(profileImageUrl)
+
     try {
-      //start loading
       setLoading(true);
-      //make HTTP POST req to create User in backend
-      let res = await axios.post("https://capstone-backend-3bgm.onrender.com/auth/users", formData,{withCredentials:true});
+
+      // ✅ FIXED: use env instead of hardcoded URL
+      let res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/auth/users`,
+        formData,
+        { withCredentials: true }
+      );
 
       if (res.status === 201) {
-        //navigate to Login
         navigate("/login");
       }
     } catch (err) {
@@ -67,7 +67,6 @@ function Register() {
       <div className={formCard}>
         <h2 className={formTitle}>Create an Account</h2>
 
-        {/* API Error */}
         {apiError && <p className={errorClass}>{apiError}</p>}
 
         <form onSubmit={handleSubmit(onUserRegister)}>
@@ -80,9 +79,7 @@ function Register() {
                 <input
                   type="radio"
                   value="USER"
-                  {...register("role", {
-                    required: "Please select a role",
-                  })}
+                  {...register("role", { required: "Please select a role" })}
                   className="accent-blue-600 w-4 h-4"
                 />
                 <span className="text-sm">User</span>
@@ -92,16 +89,16 @@ function Register() {
                 <input
                   type="radio"
                   value="AUTHOR"
-                  {...register("role", {
-                    required: "Please select a role",
-                  })}
+                  {...register("role", { required: "Please select a role" })}
                   className="accent-blue-600 w-4 h-4"
                 />
                 <span className="text-sm">Author</span>
               </label>
             </div>
 
-            {errors.role && <p className={errorClass}>{errors.role.message}</p>}
+            {errors.role && (
+              <p className={errorClass}>{errors.role.message}</p>
+            )}
           </div>
 
           <div className={divider} />
@@ -116,18 +113,14 @@ function Register() {
                 placeholder="First name"
                 {...register("firstName", {
                   required: "First name is required",
-                  minLength: {
-                    value: 2,
-                    message: "At least 2 characters required",
-                  },
-                  maxLength: {
-                    value: 30,
-                    message: "Max 30 characters allowed",
-                  },
+                  minLength: { value: 2, message: "At least 2 characters required" },
+                  maxLength: { value: 30, message: "Max 30 characters allowed" },
                   validate: (v) => v.trim().length > 0 || "Cannot be empty",
                 })}
               />
-              {errors.firstName && <p className={errorClass}>{errors.firstName.message}</p>}
+              {errors.firstName && (
+                <p className={errorClass}>{errors.firstName.message}</p>
+              )}
             </div>
 
             <div className="flex-1">
@@ -137,13 +130,12 @@ function Register() {
                 className={inputClass}
                 placeholder="Last name"
                 {...register("lastName", {
-                  maxLength: {
-                    value: 30,
-                    message: "Max 30 characters allowed",
-                  },
+                  maxLength: { value: 30, message: "Max 30 characters allowed" },
                 })}
               />
-              {errors.lastName && <p className={errorClass}>{errors.lastName.message}</p>}
+              {errors.lastName && (
+                <p className={errorClass}>{errors.lastName.message}</p>
+              )}
             </div>
           </div>
 
@@ -154,11 +146,11 @@ function Register() {
               type="email"
               className={inputClass}
               placeholder="you@example.com"
-              {...register("email", {
-                required: "Email is required",
-              })}
+              {...register("email", { required: "Email is required" })}
             />
-            {errors.email && <p className={errorClass}>{errors.email.message}</p>}
+            {errors.email && (
+              <p className={errorClass}>{errors.email.message}</p>
+            )}
           </div>
 
           {/* PASSWORD */}
@@ -172,7 +164,9 @@ function Register() {
                 required: "Password is required",
               })}
             />
-            {errors.password && <p className={errorClass}>{errors.password.message}</p>}
+            {errors.password && (
+              <p className={errorClass}>{errors.password.message}</p>
+            )}
           </div>
 
           {/* PROFILE IMAGE */}
@@ -187,11 +181,17 @@ function Register() {
                 validate: {
                   fileType: (files) => {
                     if (!files?.[0]) return true;
-                    return ["image/png", "image/jpeg"].includes(files[0].type) || "Only JPG/PNG allowed";
+                    return (
+                      ["image/png", "image/jpeg"].includes(files[0].type) ||
+                      "Only JPG/PNG allowed"
+                    );
                   },
                   fileSize: (files) => {
                     if (!files?.[0]) return true;
-                    return files[0].size <= 2 * 1024 * 1024 || "MAx size 2MB";
+                    return (
+                      files[0].size <= 2 * 1024 * 1024 ||
+                      "Max size 2MB"
+                    );
                   },
                 },
               })}
@@ -203,22 +203,26 @@ function Register() {
               }}
             />
 
-            {errors.profileImageUrl && <p className={errorClass}>{errors.profileImageUrl.message}</p>}
-            {/* image preview */}
+            {errors.profileImageUrl && (
+              <p className={errorClass}>{errors.profileImageUrl.message}</p>
+            )}
+
             {preview && (
               <div className="mt-3 flex justify-center">
-                <img src={preview} alt="" className="w-24 h-24 rounded-full object-cover" />
+                <img
+                  src={preview}
+                  alt=""
+                  className="w-24 h-24 rounded-full object-cover"
+                />
               </div>
             )}
           </div>
 
-          {/* SUBMIT */}
           <button type="submit" className={submitBtn}>
             Create Account
           </button>
         </form>
 
-        {/* FOOTER */}
         <p className={`${mutedText} text-center mt-5`}>
           Already have an account?{" "}
           <NavLink to="/login" className="text-[#0066cc] font-medium">
