@@ -1,0 +1,12 @@
+
+### Admin Login
+POST http://localhost:4000/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@mail.com",
+  "password": "admin"
+}
+
+### Test Admin API
+GET http://localhost:4000/admin-api/test
