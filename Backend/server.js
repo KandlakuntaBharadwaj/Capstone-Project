@@ -16,7 +16,14 @@ const app = exp();
 // CORS
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://capstone-project-zeta-vert.vercel.app"],
+    origin: function (origin, callback) {
+      // Allow localhost, the old Vercel URL, and any new Render deployment URLs
+      if (!origin || origin.startsWith("http://localhost") || origin.includes("vercel.app") || origin.endsWith(".onrender.com")) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
