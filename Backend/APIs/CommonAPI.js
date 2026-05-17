@@ -66,7 +66,8 @@ commonApp.post("/login", async (req, res) => {
 
   res.cookie("token", token, {
     httpOnly: true,
-    sameSite: "lax",
+    secure: true,
+    sameSite: "none",
   });
 
   const userObj = user.toObject();
@@ -77,7 +78,11 @@ commonApp.post("/login", async (req, res) => {
 
 // Logout
 commonApp.get("/logout", (req, res) => {
-  res.clearCookie("token");
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+  });
   res.json({ message: "Logged out" });
 });
 
